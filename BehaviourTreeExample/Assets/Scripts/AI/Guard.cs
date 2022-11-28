@@ -1,12 +1,14 @@
-﻿using System.Collections;
+﻿using BTExample;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Guard : MonoBehaviour
+public class Guard :  BehaviourTree
 {
-    private BTBaseNode tree;
+    //private BTBaseNode tree;
     private NavMeshAgent agent;
     private Animator animator;
 
@@ -16,14 +18,26 @@ public class Guard : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
     }
 
-    private void Start()
-    {
-        //Create your Behaviour Tree here!
-    }
+    //private void Start()
+    //{
+    //    //Create your Behaviour Tree here!
+    //}
 
-    private void FixedUpdate()
+    //private void FixedUpdate()
+    //{
+    //    //tree?.Run();
+    //}
+
+    protected override BTBaseNode SetUpTree()
     {
-        tree?.Run();
+
+        BTBaseNode root = new BTSequenceNode(new List<BTBaseNode>
+        {
+            new BTDebugNode("It work"),
+            new BTDebugNode("Then This Message"),
+            new BTDebugNode("It's amazing")
+        });
+        return root;
     }
 
     //private void OnDrawGizmos()
