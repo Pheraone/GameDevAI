@@ -6,39 +6,88 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Guard :  BehaviourTree
+public class Guard : MonoBehaviour
 {
-    //private BTBaseNode tree;
+    private BTBaseNode tree;
+    
     private NavMeshAgent agent;
     private Animator animator;
+    private BTBlackBoard bb;
+    [SerializeField] public List<Transform> waypoints = new List<Transform>();
+    [SerializeField] private GameObject playerInstance;
+    [SerializeField] private GameObject text;
+    private int waypointIndex = 0;
+    //private Transform destination;
 
     private void Awake()
     {
+
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponentInChildren<Animator>();
+        bb = new BTBlackBoard();
+        bb.SetData<NavMeshAgent>("navMeshAgent", agent);
+        bb.SetData<GameObject>("playerInstance", playerInstance);
+        bb.SetData<GameObject>("text", text);
+        bb.SetData<List<Transform>>("waypoints", waypoints);
+        bb.SetData<int>("waypointIndex", waypointIndex);
+        //bb.SetData<Transform>("destination", destination);
     }
 
-    //private void Start()
-    //{
-    //    //Create your Behaviour Tree here!
-    //}
-
-    //private void FixedUpdate()
-    //{
-    //    //tree?.Run();
-    //}
-
-    protected override BTBaseNode SetUpTree()
+    private void Start()
     {
 
-        BTBaseNode root = new BTSequenceNode(new List<BTBaseNode>
-        {
-            new BTDebugNode("It work"),
-            new BTDebugNode("Then This Message"),
-            new BTDebugNode("It's amazing")
-        });
-        return root;
+        BTBaseNode patrol =
+           new BTSequenceNode(
+               new BTCycleWaypointsNode(bb),
+               new BTMoveTowardsNode(bb),
+               new BTWaitNode(5f),
+               new BTDebugNode("Hihi")
+             );
+        tree = new BTSelectorNode
+            (
+               //parallel
+               //condition ziet speler?
+               patrol,
+               new BTSequenceNode
+               (
+                   //new BTInvertNode(
+                    new BTDebugNode("This work?"),
+                    //),
+                    new BTWaitNode(5f),
+                    new BTDebugNode("AAAAA"),
+                    new BTMoveTowardsNode(bb)
+                ),
+                new BTSequenceNode
+                (
+                    new BTDebugNode("If Invert this message")
+                )
+            ); 
     }
+
+    private void FixedUpdate()
+    {
+        tree?.Evaluate();
+    }
+
+  
+    //protected override BTBaseNode SetUpTree()
+    //{
+    //    BTBaseNode Patrol =
+    //        new BTSequenceNode(
+
+    //          );
+
+    //    BTBaseNode root = new BTSelectorNode(new List<BTBaseNode>
+    //    {
+    //        Patrol,
+    //        new BTInvertNode(),
+    //        new BTDebugNode("It work"),
+    //        new BTWaitNode(4f),
+    //        new BTDebugNode("Then This Message"),
+    //        new BTDebugNode("It's amazing")
+    //    });
+    //    return root;
+    //}
 
     //private void OnDrawGizmos()
     //{

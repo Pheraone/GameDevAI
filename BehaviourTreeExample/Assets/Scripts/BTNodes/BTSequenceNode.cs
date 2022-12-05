@@ -2,27 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BTSequenceNode : BTBaseNode
+public class BTSequenceNode : BTBaseNode 
 {
-    public BTSequenceNode() : base() { }
+    private int index = 0;
+    private BTBaseNode[] nodes;
 
-    public BTSequenceNode(List<BTBaseNode> _children) : base(_children) { }
+    public BTSequenceNode(params BTBaseNode[] _nodes) {
+        nodes = _nodes;
+    }
 
     public override TaskStatus Evaluate()
     {
-        bool anyChildIsRunning = false;
-
-        foreach(BTBaseNode _node in children)
+        for(; index < nodes.Length; index++)
         {
-            switch (_node.Evaluate())
+            switch (nodes[index].Evaluate())
             {
                 case TaskStatus.Failed:
                     return state;
                 case TaskStatus.Success:
                     continue;
                 case TaskStatus.Running:
-                    anyChildIsRunning = true;
-                    continue;
+                    //anyChildIsRunning = true;
+                    return TaskStatus.Running;
                 default:
                     state = TaskStatus.Success;
                     return state;
@@ -30,10 +31,20 @@ public class BTSequenceNode : BTBaseNode
 
             }
         }
-        state = anyChildIsRunning ? TaskStatus.Running : TaskStatus.Success;
+        //state = anyChildIsRunning ? TaskStatus.Running : TaskStatus.Success;
+        index = 0;
         return state;
     }
 
+    public override void OnEnter()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void OnExit()
+    {
+        throw new System.NotImplementedException();
+    }
 }
 
 public class BTDebugNode : BTBaseNode
@@ -48,5 +59,15 @@ public class BTDebugNode : BTBaseNode
     {
         Debug.Log(debugMessage);
         return TaskStatus.Success;
+    }
+
+    public override void OnEnter()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void OnExit()
+    {
+        throw new System.NotImplementedException();
     }
 }

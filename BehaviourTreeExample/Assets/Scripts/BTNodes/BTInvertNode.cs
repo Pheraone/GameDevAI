@@ -2,38 +2,35 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BTSelectorNode : BTBaseNode
+public class BTInvertNode : BTBaseNode
 {
-    private int index = 0;
-    private BTBaseNode[] nodes;
 
-    public BTSelectorNode(params BTBaseNode[] _nodes)
+    //public BTInvertNode() : base() { }
+
+    //public BTInvertNode(List<BTBaseNode> _children) : base(_children) { }
+    private BTBaseNode node;
+
+    public BTInvertNode(BTBaseNode _node)
     {
-        nodes = _nodes;
+        node = _node;
     }
 
     public override TaskStatus Evaluate()
     {
-        for (; index < nodes.Length; index++)
-        {
-            switch (nodes[index].Evaluate())
+       
+            switch (node.Evaluate())
             {
                 case TaskStatus.Failed:
-                    continue;
-                case TaskStatus.Success:
                     state = TaskStatus.Success;
                     return state;
-               case TaskStatus.Running:
+                case TaskStatus.Success:
+                    state = TaskStatus.Failed;
+                    return state;
+                case TaskStatus.Running:
                     state = TaskStatus.Running;
                     return state;
-               default:
-                    continue;        
-
-
             }
-        }
         
-        index = 0;
         state = TaskStatus.Failed;
         return state;
     }
@@ -48,5 +45,3 @@ public class BTSelectorNode : BTBaseNode
         throw new System.NotImplementedException();
     }
 }
-
-
