@@ -22,7 +22,7 @@ public class BTCycleWaypointsNode : BTBaseNode
             firstTime = false;
             target = waypoints[waypointIndex];
             blackboard.SetData<Transform>("destination", target);
-            Debug.Log(waypointIndex);
+            //Debug.Log(waypointIndex);
             return TaskStatus.Success;
         }
 

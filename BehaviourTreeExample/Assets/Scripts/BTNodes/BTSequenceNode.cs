@@ -18,22 +18,21 @@ public class BTSequenceNode : BTBaseNode
             switch (nodes[index].Evaluate())
             {
                 case TaskStatus.Failed:
-                    return state;
-                case TaskStatus.Success:
-                    continue;
+                    index = 0;
+                    return TaskStatus.Failed;
                 case TaskStatus.Running:
-                    //anyChildIsRunning = true;
                     return TaskStatus.Running;
-                default:
-                    state = TaskStatus.Success;
-                    return state;
+                case TaskStatus.Success:
+                    break;
+                
+               
 
 
             }
         }
         //state = anyChildIsRunning ? TaskStatus.Running : TaskStatus.Success;
         index = 0;
-        return state;
+        return TaskStatus.Success;
     }
 
     public override void OnEnter()

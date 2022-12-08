@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Net.NetworkInformation;
 using UnityEngine;
 using UnityEngine.AI;
@@ -8,15 +9,19 @@ using UnityEngine.UI;
 public class BTMoveTowardsNode : BTBaseNode
 {
     private BTBlackBoard blackboard;
+    private string destination;
 
-    public BTMoveTowardsNode(BTBlackBoard _bb)
+    public BTMoveTowardsNode(BTBlackBoard _bb, string _destination)
     {
         blackboard = _bb;
+        destination = _destination;
     }
 
     public override TaskStatus Evaluate()
     {
-        Transform targetPosition = blackboard.GetData<Transform>("destination");
+
+        //blackboard.SetData<Transform>("destination", transform);
+        Transform targetPosition = blackboard.GetData<Transform>(destination);
         NavMeshAgent agent = blackboard.GetData<NavMeshAgent>("navMeshAgent");
         blackboard.GetData<GameObject>("text").GetComponent<TextMesh>().text = "Walking Towards" + targetPosition;
 

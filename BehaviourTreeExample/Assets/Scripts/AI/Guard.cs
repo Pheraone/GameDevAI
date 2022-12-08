@@ -1,6 +1,7 @@
 ﻿using BTExample;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -14,10 +15,16 @@ public class Guard : MonoBehaviour
     private Animator animator;
     private BTBlackBoard bb;
     [SerializeField] public List<Transform> waypoints = new List<Transform>();
-    [SerializeField] private GameObject playerInstance;
+    [SerializeField] private Transform playerInstance;
     [SerializeField] private GameObject text;
+    [SerializeField] private int range;
+    [SerializeField] private int attackRange;
+
     private int waypointIndex = 0;
-    //private Transform destination;
+    [SerializeField]private bool hasWeapon = false;
+    private bool isInRange = false;
+    [SerializeField] private Transform weapon;
+    
 
     private void Awake()
     {
@@ -26,11 +33,15 @@ public class Guard : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
         bb = new BTBlackBoard();
         bb.SetData<NavMeshAgent>("navMeshAgent", agent);
-        bb.SetData<GameObject>("playerInstance", playerInstance);
+        bb.SetData<Transform>("playerInstance", playerInstance);
         bb.SetData<GameObject>("text", text);
         bb.SetData<List<Transform>>("waypoints", waypoints);
         bb.SetData<int>("waypointIndex", waypointIndex);
-        //bb.SetData<Transform>("destination", destination);
+        bb.SetData<bool>("hasWeapon", hasWeapon);
+        bb.SetData<bool>("isInRange", isInRange);
+        bb.SetData<int>("range", range);
+        bb.SetData<int>("attackRange", attackRange);
+        bb.SetData<Transform>("weapon", weapon);
     }
 
     private void Start()
@@ -39,29 +50,70 @@ public class Guard : MonoBehaviour
         BTBaseNode patrol =
            new BTSequenceNode(
                new BTCycleWaypointsNode(bb),
-               new BTMoveTowardsNode(bb),
-               new BTWaitNode(5f),
-               new BTDebugNode("Hihi")
+               new BTMoveTowardsNode(bb, "destination"),
+               new BTDebugNode("Hihi"),
+               new BTWaitNode(5f)
              );
+
+        BTBaseNode attack =
+            new BTParallelNode(
+                new BTInvertNode(
+               new BTRangeToObjectNode(bb, "playerInstance", range, "isInRange")),
+            new BTSequenceNode(
+               
+                    new BTConditionNode(bb, "isInRange"),
+                new BTSequenceNode(
+                     
+                        new BTConditionNode(bb, "hasWeapon") ,
+                    
+                new BTMoveTowardsNode(bb, "playerInstance"),
+               
+                new BTAttackNode(bb)
+                )
+                ));
+
+
+        BTBaseNode getWeapon =
+            new BTSequenceNode(
+                new BTParallelNode(
+                new BTInvertNode(
+               new BTRangeToObjectNode(bb, "playerInstance", range, "isInRange")),
+                new BTSequenceNode(
+
+                new BTConditionNode(bb, "isInRange"),
+                new BTInvertNode(
+                new BTConditionNode(bb, "hasWeapon")
+                ),
+                new BTRangeToObjectNode(bb, "weapon", range, "isInRange"),
+                //get closest object (weapon)
+                new BTMoveTowardsNode(bb, "weapon")
+                //new BTPickUpNode(bb, "weapon")
+                // pick up weapon
+                )));
+
+        BTBaseNode conditionalNodeTest =
+                //new BTSequenceNode(
+                new BTInvertNode(
+                    new BTConditionNode(bb, "hasWeapon")
+                    );
+
+        //new BTDebugNode("conditional code reached")
+        // );
+
         tree = new BTSelectorNode
             (
-               //parallel
-               //condition ziet speler?
-               patrol,
-               new BTSequenceNode
-               (
-                   //new BTInvertNode(
-                    new BTDebugNode("This work?"),
-                    //),
-                    new BTWaitNode(5f),
-                    new BTDebugNode("AAAAA"),
-                    new BTMoveTowardsNode(bb)
-                ),
-                new BTSequenceNode
-                (
-                    new BTDebugNode("If Invert this message")
-                )
-            ); 
+            getWeapon,
+             attack,
+            new BTParallelNode(
+                new BTRangeToObjectNode(bb, "playerInstance", range, "isInRange"),
+                new BTSequenceNode(
+                new BTInvertNode(
+
+                new BTConditionNode(bb, "isInRange")),
+                patrol
+                //new BTWaitNode(5f)
+                ))
+            );
     }
 
     private void FixedUpdate()
