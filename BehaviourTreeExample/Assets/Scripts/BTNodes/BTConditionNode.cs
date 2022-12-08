@@ -30,6 +30,7 @@ public class BTConditionNode : BTBaseNode
         }
         else
         {
+            Debug.Log("aap" + conditionName + " " + condition);
             state = TaskStatus.Failed;
         }
         return state;

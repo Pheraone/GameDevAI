@@ -6,6 +6,7 @@ using UnityEngine.Assertions.Must;
 public class Player : MonoBehaviour, IDamageable
 {
     public Transform Camera;
+    [SerializeField] private int health;
     [SerializeField] private float rotationSpeed = 180f;
     [SerializeField] private float moveSpeed = 3;
     [SerializeField] private float deathForce = 1000;
@@ -16,6 +17,7 @@ public class Player : MonoBehaviour, IDamageable
     private float hor = 0;
     private Vector3 moveDirection;
     private Collider mainCollider;
+    public bool isSeen = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -64,6 +66,11 @@ public class Player : MonoBehaviour, IDamageable
 
     public void TakeDamage(GameObject attacker, int damage)
     {
+        //health = damage;
+        //if(health <= 0)
+        //{
+
+        //}
         animator.enabled = false;
         var cols = GetComponentsInChildren<Collider>();
         foreach (Collider col in cols)
@@ -81,6 +88,7 @@ public class Player : MonoBehaviour, IDamageable
         }
         ragdoll.transform.SetParent(null);
 
+        //Destroy(this.gameObject);
         gameObject.SetActive(false);
     }
 

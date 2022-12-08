@@ -1,18 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
-public class BTAttackNode : BTBaseNode
+public class BTCheckPlayerNode : BTBaseNode
 {
     private BTBlackBoard blackboard;
     private int damage;
-    //private Player player;
-    
-    public BTAttackNode(BTBlackBoard _bb, int _damage)
+
+    public BTCheckPlayerNode(BTBlackBoard _bb)
     {
         blackboard = _bb;
-        damage = _damage;
         //player = _player;
     }
 
@@ -22,15 +19,17 @@ public class BTAttackNode : BTBaseNode
         //collider check
         //enemy do damage
 
+        blackboard.GetData<GameObject>("text").GetComponent<TextMesh>().text = "Checking" + target.transform.position;
 
-        blackboard.GetData<GameObject>("text").GetComponent<TextMesh>().text = "Attacking" + target.transform.position;
-        NavMeshAgent attackerAgent = blackboard.GetData<NavMeshAgent>("navMeshAgent");
-        GameObject attacker = attackerAgent.gameObject;
-        //Als enemy de speler heeft geraakt ->player is dood check? wait node?
-        //Als de speler dood is -> home
-        //Als de speler uit range is -> back to patrol
         Player player = target.gameObject.GetComponent<Player>();
-        player.TakeDamage(attacker, damage);
+        if(player.isSeen == true)
+        {
+            Debug.Log("playerSeenBool" + player.isSeen);
+            blackboard.SetData<bool>("isPlayerSeen", player.isSeen);
+        } else
+        {
+            blackboard.SetData<bool>("isPlayerSeen", player.isSeen);
+        }
         return TaskStatus.Success;
     }
 

@@ -30,6 +30,12 @@ public class BTRangeToObjectNode : BTBaseNode
         NavMeshAgent agent = blackboard.GetData<NavMeshAgent>("navMeshAgent");
         Vector3 myPos = agent.transform.position;
 
+        if(objectTransform.gameObject.activeSelf == false)
+        {
+            isInRange = false;
+            blackboard.SetData<bool>(boolean, isInRange);
+            return TaskStatus.Success;
+        }
        
        if(Vector3.Distance(myPos, objectPosition) <= range)
         {

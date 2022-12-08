@@ -18,14 +18,17 @@ public class Guard : MonoBehaviour
 
     private bool isInRange = false;
     private bool canPickUp = false;
+    private bool isInAttackRange = false;
 
     [SerializeField] public List<Transform> waypoints = new List<Transform>();
     [SerializeField] private Transform playerInstance;
     [SerializeField] private Transform weapon;
     [SerializeField] private GameObject text;
     [SerializeField] private int range;
+    [SerializeField] private int attackRange;
     [SerializeField] private int pickUpRange;
     [SerializeField]private bool hasWeapon = false;
+    [SerializeField] private int damage = 10;
     
 
     private void Awake()
@@ -63,15 +66,12 @@ public class Guard : MonoBehaviour
                 new BTInvertNode(
                new BTRangeToObjectNode(bb, "playerInstance", range, "isInRange")),
             new BTSequenceNode(
-               
                     new BTConditionNode(bb, "isInRange"),
                 new BTSequenceNode(
-                     
                         new BTConditionNode(bb, "hasWeapon") ,
-                    
                 new BTMoveTowardsNode(bb, "playerInstance"),
-               
-                new BTAttackNode(bb)
+                new BTRangeToObjectNode(bb, "playerInstance", attackRange, "isInAttackRange"),
+                new BTAttackNode(bb, damage)
                 )
                 ));
 
@@ -82,7 +82,6 @@ public class Guard : MonoBehaviour
                 new BTInvertNode(
                new BTRangeToObjectNode(bb, "playerInstance", range, "isInRange")),
                 new BTSequenceNode(
-
                     new BTConditionNode(bb, "isInRange"),
                     new BTSequenceNode(
                         new BTInvertNode(
