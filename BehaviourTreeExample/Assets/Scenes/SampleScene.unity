@@ -494,7 +494,7 @@ MonoBehaviour:
   playerInstance: {fileID: 1267729045}
   text: {fileID: 1977825910}
   range: 5
-  attackRange: 2
+  pickUpRange: 2
   hasWeapon: 0
   weapon: {fileID: 2106272483}
 --- !u!1 &539957088

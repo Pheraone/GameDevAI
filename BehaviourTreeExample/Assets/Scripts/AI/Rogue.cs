@@ -7,23 +7,29 @@ using UnityEngine.AI;
 public class Rogue : MonoBehaviour
 {
 
-    //private BTBaseNode tree;
+    private BTBaseNode tree;
     private NavMeshAgent agent;
     private Animator animator;
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponentInChildren<Animator>();
+        
     }
 
     private void Start()
     {
-        //TODO: Create your Behaviour tree here
+
+
+        tree = new BTSelectorNode(
+
+
+            );
     }
 
     private void FixedUpdate()
     {
-        //tree?.Run();
+        tree?.Evaluate();
     }
 
     //private void OnDrawGizmos()

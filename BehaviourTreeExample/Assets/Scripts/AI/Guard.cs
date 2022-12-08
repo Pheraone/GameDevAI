@@ -10,20 +10,22 @@ using UnityEngine.AI;
 public class Guard : MonoBehaviour
 {
     private BTBaseNode tree;
-    
     private NavMeshAgent agent;
     private Animator animator;
     private BTBlackBoard bb;
-    [SerializeField] public List<Transform> waypoints = new List<Transform>();
-    [SerializeField] private Transform playerInstance;
-    [SerializeField] private GameObject text;
-    [SerializeField] private int range;
-    [SerializeField] private int attackRange;
 
     private int waypointIndex = 0;
-    [SerializeField]private bool hasWeapon = false;
+
     private bool isInRange = false;
+    private bool canPickUp = false;
+
+    [SerializeField] public List<Transform> waypoints = new List<Transform>();
+    [SerializeField] private Transform playerInstance;
     [SerializeField] private Transform weapon;
+    [SerializeField] private GameObject text;
+    [SerializeField] private int range;
+    [SerializeField] private int pickUpRange;
+    [SerializeField]private bool hasWeapon = false;
     
 
     private void Awake()
@@ -40,8 +42,9 @@ public class Guard : MonoBehaviour
         bb.SetData<bool>("hasWeapon", hasWeapon);
         bb.SetData<bool>("isInRange", isInRange);
         bb.SetData<int>("range", range);
-        bb.SetData<int>("attackRange", attackRange);
+        bb.SetData<int>("pickUpRange", pickUpRange);
         bb.SetData<Transform>("weapon", weapon);
+        bb.SetData<bool>("canPickUp", canPickUp);
     }
 
     private void Start()
@@ -75,20 +78,20 @@ public class Guard : MonoBehaviour
 
         BTBaseNode getWeapon =
             new BTSequenceNode(
-                new BTParallelNode(
+                //new BTParallelNode(
                 new BTInvertNode(
                new BTRangeToObjectNode(bb, "playerInstance", range, "isInRange")),
                 new BTSequenceNode(
 
-                new BTConditionNode(bb, "isInRange"),
-                new BTInvertNode(
-                new BTConditionNode(bb, "hasWeapon")
-                ),
-                new BTRangeToObjectNode(bb, "weapon", range, "isInRange"),
-                //get closest object (weapon)
-                new BTMoveTowardsNode(bb, "weapon")
-                //new BTPickUpNode(bb, "weapon")
-                // pick up weapon
+                    new BTConditionNode(bb, "isInRange"),
+                    new BTSequenceNode(
+                        new BTInvertNode(
+                            new BTConditionNode(bb, "hasWeapon")
+                        ),
+                        new BTMoveTowardsNode(bb, "weapon"),
+                        new BTInvertNode(
+                            new BTRangeToObjectNode(bb, "weapon", pickUpRange, "canPickUp")),
+                        new BTPickUpNode(bb, "weapon")
                 )));
 
         BTBaseNode conditionalNodeTest =
@@ -97,8 +100,6 @@ public class Guard : MonoBehaviour
                     new BTConditionNode(bb, "hasWeapon")
                     );
 
-        //new BTDebugNode("conditional code reached")
-        // );
 
         tree = new BTSelectorNode
             (
