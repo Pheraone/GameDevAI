@@ -68,7 +68,7 @@ public class Guard : MonoBehaviour
             new BTSequenceNode(
                 new BTConditionNode(bb, "isSmoked"),
             new BTInvertNode(
-                new BTWaitNode(10f))
+                new BTWaitNode(10))
                 );
 
         BTBaseNode attack =
