@@ -29,6 +29,7 @@ public class Guard : MonoBehaviour
     [SerializeField] private int pickUpRange;
     [SerializeField]private bool hasWeapon = false;
     [SerializeField] private int damage = 10;
+    private bool isSmoked = false;
     
 
     private void Awake()
@@ -44,10 +45,12 @@ public class Guard : MonoBehaviour
         bb.SetData<int>("waypointIndex", waypointIndex);
         bb.SetData<bool>("hasWeapon", hasWeapon);
         bb.SetData<bool>("isInRange", isInRange);
+        bb.SetData<bool>("isInAttackRange", isInAttackRange);
         bb.SetData<int>("range", range);
         bb.SetData<int>("pickUpRange", pickUpRange);
         bb.SetData<Transform>("weapon", weapon);
         bb.SetData<bool>("canPickUp", canPickUp);
+        bb.SetData<bool>("isSmoked", isSmoked);
     }
 
     private void Start()
@@ -61,6 +64,13 @@ public class Guard : MonoBehaviour
                new BTWaitNode(5f)
              );
 
+        BTBaseNode smoke =
+            new BTSequenceNode(
+                new BTConditionNode(bb, "isSmoked"),
+            new BTInvertNode(
+                new BTWaitNode(10f))
+                );
+
         BTBaseNode attack =
             new BTParallelNode(
                 new BTInvertNode(
@@ -68,9 +78,13 @@ public class Guard : MonoBehaviour
             new BTSequenceNode(
                     new BTConditionNode(bb, "isInRange"),
                 new BTSequenceNode(
-                        new BTConditionNode(bb, "hasWeapon") ,
+
+                    new BTFlipBoolNode(bb),
+                    new BTConditionNode(bb, "hasWeapon") ,
                 new BTMoveTowardsNode(bb, "playerInstance"),
-                new BTRangeToObjectNode(bb, "playerInstance", attackRange, "isInAttackRange"),
+                new BTInvertNode(
+                new BTRangeToObjectNode(bb, "playerInstance", attackRange, "isInAttackRange")),
+                new BTConditionNode(bb, "isInAttackRange"),
                 new BTAttackNode(bb, damage)
                 )
                 ));
@@ -80,10 +94,11 @@ public class Guard : MonoBehaviour
             new BTSequenceNode(
                 //new BTParallelNode(
                 new BTInvertNode(
-               new BTRangeToObjectNode(bb, "playerInstance", range, "isInRange")),
+                new BTRangeToObjectNode(bb, "playerInstance", range, "isInRange")),
                 new BTSequenceNode(
                     new BTConditionNode(bb, "isInRange"),
                     new BTSequenceNode(
+                    new BTFlipBoolNode(bb),
                         new BTInvertNode(
                             new BTConditionNode(bb, "hasWeapon")
                         ),
@@ -102,6 +117,7 @@ public class Guard : MonoBehaviour
 
         tree = new BTSelectorNode
             (
+            smoke,
             getWeapon,
              attack,
             new BTParallelNode(
@@ -110,6 +126,7 @@ public class Guard : MonoBehaviour
                 new BTInvertNode(
 
                 new BTConditionNode(bb, "isInRange")),
+                new BTFlipBoolNode(bb),
                 patrol
                 //new BTWaitNode(5f)
                 ))
@@ -121,7 +138,21 @@ public class Guard : MonoBehaviour
         tree?.Evaluate();
     }
 
-  
+    public void OnTriggerStay(Collider other)
+    {
+        if(other.gameObject.tag == "smoke")
+        {
+
+            isSmoked = true;
+        }
+    }
+    public void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.tag == "smoke")
+        {
+            isSmoked = false;
+        }
+    }
     //protected override BTBaseNode SetUpTree()
     //{
     //    BTBaseNode Patrol =

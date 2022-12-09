@@ -21,7 +21,9 @@ public class Rogue : MonoBehaviour
     [SerializeField] private GameObject cloudMesh;
     private bool isPlayerInRange = false;
     private bool hasThrownSmoke = false;
+    private bool isHidden = false;
     [SerializeField] private List<Transform> hidingSpots;
+    private int layer = 9;
 
     private void Awake()
     {
@@ -36,6 +38,7 @@ public class Rogue : MonoBehaviour
         bb.SetData<Transform>("enemyPosition", enemyPosition);
         bb.SetData<GameObject>("cloud", cloudMesh);
         bb.SetData<bool>("hasThrownSmoke", hasThrownSmoke);
+        bb.SetData<bool>("isHidden", isHidden);
         //bb.SetData<bool>("isPlayerSeen",)
 
     }
@@ -47,27 +50,27 @@ public class Rogue : MonoBehaviour
                 new BTParallelNode(
                 new BTCheckPlayerNode(bb),
                 new BTConditionNode(bb, "isPlayerSeen"),
-                //new BTSequenceNode(
-                //check when ally is hidden bool switch range to object node?
-                //new BTConditionNode(bb, "isHidden"),
-                new BTSequenceNode(
+                new BTRaycastToObjectNode(bb, "enemyPosition", "navMeshAgent", layer, "isHidden"),
+                new BTConditionNode(bb, "isHidden"),
+                new BTSelectorNode(
                     //new BTInvertNode(
                     //    new BTConditionNode(bb, "isHidden")
                     //),
                     //go to closest waypoint
-                    new BTCalcClosestObjectNode(bb),
+                    new BTInvertNode(
+                    new BTCalcClosestObjectNode(bb)),
                     new BTMoveTowardsNode(bb, "destination")
                     )
                 ));
 
         BTBaseNode throwBomb =
             new BTSequenceNode(
-                
+                new BTRaycastToObjectNode(bb, "enemyPosition", "navMeshAgent", layer, "isHidden"),
+                new BTConditionNode(bb, "isHidden"),
                 new BTCheckPlayerNode(bb),
                 new BTConditionNode(bb, "isPlayerSeen"),
-                //new BTConditionNode(bb, "isHidden"), 
-                //new BTInvertNode(
-                new BTThrowSmokeNode(bb, "enemyPosition", "hasThrownSmoke")
+                new BTInvertNode(
+                new BTThrowSmokeNode(bb, "enemyPosition", "hasThrownSmoke"))
                 //new BTWaitNode(5f)
                 );
 
@@ -90,13 +93,10 @@ public class Rogue : MonoBehaviour
                 );
 
         tree = new BTSelectorNode(
-            new BTSequenceNode(
 
-                stayCloseToPlayer,
-                hide
-                //throwBomb,
-                )
-
+                throwBomb,
+                hide,
+                stayCloseToPlayer
             );
     }
 

@@ -9,7 +9,7 @@ public class BTThrowSmokeNode : BTBaseNode
     private BTBlackBoard blackboard;
     private string destination;
 
-    private float waitTime = 1f;
+    private float waitTime = 3f;
     private float currentTime;
     private bool hasThrownSmoke;
     private string boolean;
@@ -48,6 +48,7 @@ public class BTThrowSmokeNode : BTBaseNode
             clone.SetActive(false);
             hasThrownSmoke = !hasThrownSmoke;
             blackboard.SetData<bool>(boolean, hasThrownSmoke);
+            Debug.Log("AAPBANAAN");
             return TaskStatus.Failed;
         }
         else

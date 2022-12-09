@@ -24,27 +24,20 @@ public class BTCalcClosestObjectNode : BTBaseNode
         Vector3 myPos = myNavMesh.transform.position;
         //int waypointIndex = blackboard.GetData<int>("waypointIndex");
         Transform target;
-        //if (firstTime == true)
-        //{
-        //    firstTime = false;
-        //    target = waypoints[waypointIndex];
-        //    blackboard.SetData<Transform>("destination", target);
-        //    //Debug.Log(waypointIndex);
-        //    return TaskStatus.Success;
-        //}
 
+        smallestDistance = Mathf.Infinity;
 
         //waypointIndex = waypointIndex + 1;
         //if (waypointIndex == waypoints.Count)
         //{
         //    waypointIndex = 0;
         //}
-        
 
-        for (; index <= hidingSpots.Count; index++)
+
+        for (; index <= hidingSpots.Count-1; index++)
         {
             
-            smallestDistance = Mathf.Infinity;
+            
             float tempValue = Vector3.Distance(myPos, hidingSpots[index].transform.position);
             if (tempValue < smallestDistance)
             {
@@ -52,7 +45,6 @@ public class BTCalcClosestObjectNode : BTBaseNode
                 smallestIndex = index;
             }
         }
-
         target = hidingSpots[smallestIndex];
 
         blackboard.SetData<Transform>("destination", target);
